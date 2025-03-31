@@ -4,9 +4,7 @@
   "description": "this is a DT server for wewer",
   "main": "service.js",
   "type": "commonjs",
-  "engines": {
-    "node": "22.11.0"
-  },
+  
   "scripts": {
     "server": "nodemon --experimental-require-module service.js ",
     "start": "nodemon --experimental-require-module service.js ",
