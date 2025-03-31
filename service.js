@@ -16,7 +16,7 @@ const spaceRoutes = require('./Routes/spaceRoutes.js');
 
 
 const { connect } = require('./Utils/Mongoose');
-const { getSession } = require('@auth/express');
+// const { getSession } = require('@auth/express');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -46,10 +46,10 @@ app.use(bodyParser.json());
 
 app.use('/api/machines', machineRoutes);
 app.use('/api/vendor', vendorRoutes);
-app.use('/api/auth', authRoutes);
+// app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/payment',paymentRoutes );
+// app.use('/api/payment',paymentRoutes );
 app.use('/api/statics/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/spaces', spaceRoutes);
 

@@ -1,6 +1,14 @@
 const express = require('express');
 const multer = require('multer');
-const { createSpace, getAllSpaces, getSpaceById, updateSpace, deleteSpace } = require('../Controller/spaceController.js');
+const { createMakerspace,
+    getMakerspaceByName,
+    getMakerspacesByCity,
+    getAllSpaces,
+    getSpaceById,
+    updateSpace,
+    deleteSpace,
+    onboardMakerspace,
+    verifyOnboardingToken } = require('../Controller/spaceController.js');
 
 const router = express.Router();
 
@@ -8,10 +16,14 @@ const router = express.Router();
 const storage = multer.memoryStorage(); // Store files in memory for S3 upload
 const upload = multer({ storage });
 
-router.post('/create', upload.array('images', 10), createSpace); // Allow up to 10 images
-router.get('/', getAllSpaces);
-router.get('/:id', getSpaceById);
-router.put('/:id', updateSpace);
-router.delete('/:id', deleteSpace);
+router.post('/onboard', onboardMakerspace); // Generate onboarding link
+router.get('/verify/:token', verifyOnboardingToken); // Verify onboarding token
+router.post('/', upload.array('images', 10), createMakerspace); // Create a new makerspace
+router.get('/:id', getSpaceById); // Get a makerspace by ID
+router.put('/:id', upload.array('images', 10), updateSpace); // Update a makerspace
+router.delete('/:id', deleteSpace); // Delete a makerspace
+router.get('/by-name/:name', getMakerspaceByName); // Get a makerspace by name
+router.get('/by-city/:city', getMakerspacesByCity);
+router.get('/all', getAllSpaces); // Get all makerspaces
 
 module.exports = router;

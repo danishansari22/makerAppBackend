@@ -1,7 +1,6 @@
-const Google = require('@auth/core/providers/google');
-const LinkedIn = require('@auth/core/providers/linkedin');
-const { ExpressAuth, getSession } = require('@auth/express');           
-const Credentials = require("@auth/express/providers/credentials")
+
+         
+
 const User = require('../Models/userModel')
 const { hashPassword, getUserFromDb } = require('../Utils/user')
 const MailService = require('../Utils/mail')
@@ -138,7 +137,6 @@ router.post("/signup", async (req, res) => {
       purpose,
     });
     await newUser.save();
-    MailService.sendWelcomeEmail(email, firstName);
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -203,6 +201,6 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-router.use("/*", ExpressAuth(config))
+// router.use("/*", ExpressAuth(config))
 
 module.exports = router;
