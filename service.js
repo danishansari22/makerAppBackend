@@ -25,11 +25,11 @@ require("econsole").enhance({ level: "TRACE" });
 const config = require('./Utils/authConfig');
 
 // Auth0 Current Session
-async function authSession(req, res, next) {
-  res.locals.session = await getSession(req, config)
-  next()
-}
-app.use(authSession)
+// async function authSession(req, res, next) {
+//   res.locals.session = await getSession(req, config)
+//   next()
+// }
+// app.use(authSession)
 
 // Auth.js setup
 // If your app is served through a proxy

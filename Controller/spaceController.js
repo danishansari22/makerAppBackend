@@ -99,10 +99,13 @@ const createMakerspace = async (req, res) => {
     if (!existingMakerspace) {
       return res.status(404).json({ message: 'Invalid token or makerspace not found' });
     }
+    const uniqueNumber = Date.now(); // You can replace this with any unique number generator
+    const customId = `KARV${uniqueNumber}V`;
 
     const imageLinks = req.files ? await uploadImages(req.files) : [];
     const newMakerspace = new Makerspace({
       ...req.body,
+      id: customId,
       email: decoded.vendormail,
       imageLinks,
     });
