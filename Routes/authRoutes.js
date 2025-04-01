@@ -1,12 +1,15 @@
 
          
-
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const User = require('../Models/userModel')
 const { hashPassword, getUserFromDb } = require('../Utils/user')
 const MailService = require('../Utils/mail')
 const router = require('express').Router();
 const crypto = require('crypto');
 const config = require('../Utils/authConfig')
+
+const JWT_SECRET = "Karkhana";
 // config = {
 //     providers: [
 //       Google.default({
@@ -112,6 +115,36 @@ const config = require('../Utils/authConfig')
 //       },
 //     }
 // }
+
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Compare the provided password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, userType: user.userType },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({ message: 'Login successful', token, user });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 router.post("/signup", async (req, res) => {
   try {
