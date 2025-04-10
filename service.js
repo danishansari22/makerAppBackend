@@ -53,7 +53,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
 // app.use('/api/payment',paymentRoutes );
 app.use('/api/statics/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/spaces', spaceRoutes);
+app.use('/api/makerspaces', spaceRoutes);
 app.use('/api/events', eventRoutes);
 
 
