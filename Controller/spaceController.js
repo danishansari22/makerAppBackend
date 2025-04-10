@@ -36,23 +36,42 @@ const sendEmail = async (email, id, password) => {
 
 const onboardMakerspace = async (req, res) => {
   try {
+    console.log('Onboarding request:', req.body);
     const { vendormail } = req.body;
-    console.log(vendormail);
-    
 
-    // Check if the email already exists in the database
-    const existingMakerspace = await Makerspace.findOne({ email: vendormail });
-    if (existingMakerspace) {
-      return res.status(400).json({ message: 'Makerspace with this email already exists' });
+    if (!vendormail) {
+      return res.status(400).json({ message: 'Email is required' });
     }
 
-    // Generate a token with the vendor's email
-    const token = jwt.sign({ vendormail }, JWT_SECRET, { expiresIn: '1h' });
+    // Check if makerspace with same email already exists
+    const existingMakerspace = await Makerspace.findOne({ email: vendormail });
 
-    res.status(200).json({ token });
+  
+
+    if (existingMakerspace) {
+      return res
+        .status(400)
+        .json({ message: 'Makerspace with this email already exists' });
+    }
+    
+
+
+    // Generate JWT token with email
+    const token = jwt.sign({ vendormail }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
+
+    const makerspace = new Makerspace({
+      email: vendormail,
+      token:token
+    });
+    await makerspace.save();
+
+    res.status(200).json({token}  )
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Check email error:', error);
+    res.status(500).json({ message: 'Error checking email' });
   }
 };
 
@@ -60,6 +79,7 @@ const onboardMakerspace = async (req, res) => {
 const verifyOnboardingToken = async (req, res) => {
   try {
     const { token } = req.params;
+    console.log('Verifying token:', token);
 
     // Verify the token
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -70,7 +90,7 @@ const verifyOnboardingToken = async (req, res) => {
       return res.status(404).json({ message: 'Invalid token or makerspace not found', isValid: false });
     }
 
-    res.status(200).json({ message: 'Token verified successfully', isValid: true, email: makerspace.email });
+    res.status(200).json({ message: 'Token verified successfully', isValid: true, email: makerspace.email,token:token });
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'Invalid or expired token', isValid: false });
@@ -118,28 +138,45 @@ const uploadImages = async (files) => {
 };
 
 // Create a new makerspace (completes onboarding)
+// Update an existing verified makerspace (completes onboarding)
 const createMakerspace = async (req, res) => {
   try {
-    // Check if the makerspace already exists
-    const { email, inChargeName } = req.body;
+    // Extract the token from the Authorization header
 
+    const { email, type, usage, name, number, inChargeName, websiteLink, timings, city, state, address, zipcode, country, organizationName, organizationEmail } = req.body;
+
+
+    // Find the makerspace by email
     const existingMakerspace = await Makerspace.findOne({ email });
-    if (existingMakerspace) {
-      return res.status(400).json({ message: 'Makerspace with this email already exists' });
+    if (!existingMakerspace) {
+      return res.status(404).json({ message: 'Makerspace not found for the provided email' });
     }
 
-    const uniqueNumber = Date.now(); // Generate a unique number
-    const customId = `KARV${uniqueNumber}V`;
-
+    // Upload images if provided
     const imageLinks = req.files ? await uploadImages(req.files) : [];
-    const newMakerspace = new Makerspace({
-      ...req.body,
-      id: customId,
-      email,
-      imageLinks,
-    });
 
-    await newMakerspace.save();
+    // Update the existing makerspace with the provided data
+    const updatedMakerspace = await Makerspace.findByIdAndUpdate(
+      existingMakerspace._id,
+      {
+        type,
+        usage,
+        name,
+        number,
+        inChargeName,
+        websiteLink,
+        timings,
+        city,
+        state,
+        address,
+        zipcode,
+        country,
+        organizationName,
+        organizationEmail,
+        $push: { imageLinks }, // Add new images to the existing list
+      },
+      { new: true }
+    );
 
     // Auto-signup for the user
     const password = Math.random().toString(36).slice(-8); // Generate a random password
@@ -158,22 +195,22 @@ const createMakerspace = async (req, res) => {
     const loginToken = jwt.sign(
       { id: newUser._id, email: newUser.email, userType: newUser.userType },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' }
     );
 
     // Send email to the user with ID and password
     await sendEmail(email, email, password);
 
-    res.status(201).json({
-      message: 'Makerspace created successfully',
-      makerspace: newMakerspace,
+    res.status(200).json({
+      message: 'Makerspace updated successfully',
+      makerspace: updatedMakerspace,
       loginToken,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error updating makerspace:', error);
     res.status(500).json({ message: 'Server error', error });
   }
-};;
+};
 
 // Get a makerspace by name
 const getMakerspaceByName = async (req, res) => {

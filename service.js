@@ -58,6 +58,7 @@ app.use('/api/events', eventRoutes);
 
 
 
+
 app.use('/', (req, res) => {
   res.send('Welcome to Maker App Backend');
 });
