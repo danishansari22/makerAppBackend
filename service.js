@@ -40,14 +40,14 @@ app.set("trust proxy", true)
 
 app.use(cors(
   {
-    origin:['http://localhost:5173', 'https://makerappdev.vercel.app'],
+    origin:'*',
     credentials:true
   }
 ));
 app.use(bodyParser.json());
 
 app.use('/api/machines', machineRoutes);
-app.use('/api/vendor', vendorRoutes);
+// app.use('/api/vendor', vendorRoutes);
 // app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);

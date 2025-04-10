@@ -37,6 +37,8 @@ const sendEmail = async (email, id, password) => {
 const onboardMakerspace = async (req, res) => {
   try {
     const { vendormail } = req.body;
+    console.log(vendormail);
+    
 
     // Check if the email already exists in the database
     const existingMakerspace = await Makerspace.findOne({ email: vendormail });
