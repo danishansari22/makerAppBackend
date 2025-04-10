@@ -1,6 +1,10 @@
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const Makerspace = require('../Models/spaceModel.js'); 
+const User = require('../Models/userModel.js');
+const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
+const dotenv = require('dotenv');
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -8,6 +12,28 @@ const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
 });
 const JWT_SECRET = "Karkhana"
+
+const sendEmail = async (email, id, password) => {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.office365.com', // Outlook SMTP server
+    port: 587, // Port for TLS
+    secure: false, // Use TLS
+    auth: {
+      user: process.env.EMAIL_SERVER_USER, // Your Outlook email address
+      pass: process.env.EMAIL_SERVER_PASSWORD, // Your Outlook email password
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_SERVER_USER, // Sender address
+    to: email, // Recipient address
+    subject: 'Your Makerspace Account Details',
+    text: `Your account has been created successfully.\n\nID: ${id}\nPassword: ${password}\n\nPlease log in to your account.`,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 const onboardMakerspace = async (req, res) => {
   try {
     const { vendormail } = req.body;
@@ -92,31 +118,60 @@ const uploadImages = async (files) => {
 // Create a new makerspace (completes onboarding)
 const createMakerspace = async (req, res) => {
   try {
-    const { token } = req.body;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Check if the makerspace already exists
+    const { email, inChargeName } = req.body;
 
-    const existingMakerspace = await Makerspace.findOne({ email: decoded.vendormail });
-    if (!existingMakerspace) {
-      return res.status(404).json({ message: 'Invalid token or makerspace not found' });
+    const existingMakerspace = await Makerspace.findOne({ email });
+    if (existingMakerspace) {
+      return res.status(400).json({ message: 'Makerspace with this email already exists' });
     }
-    const uniqueNumber = Date.now(); // You can replace this with any unique number generator
+
+    const uniqueNumber = Date.now(); // Generate a unique number
     const customId = `KARV${uniqueNumber}V`;
 
     const imageLinks = req.files ? await uploadImages(req.files) : [];
     const newMakerspace = new Makerspace({
       ...req.body,
       id: customId,
-      email: decoded.vendormail,
+      email,
       imageLinks,
     });
 
     await newMakerspace.save();
-    res.status(201).json({ message: 'Makerspace created successfully', makerspace: newMakerspace });
+
+    // Auto-signup for the user
+    const password = Math.random().toString(36).slice(-8); // Generate a random password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      firstName: inChargeName || 'Makerspace',
+      userType: 'vendor',
+    });
+
+    await newUser.save();
+
+    // Generate a new JWT token for the user
+    const loginToken = jwt.sign(
+      { id: newUser._id, email: newUser.email, userType: newUser.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Send email to the user with ID and password
+    await sendEmail(email, email, password);
+
+    res.status(201).json({
+      message: 'Makerspace created successfully',
+      makerspace: newMakerspace,
+      loginToken,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error', error });
   }
-};
+};;
 
 // Get a makerspace by name
 const getMakerspaceByName = async (req, res) => {

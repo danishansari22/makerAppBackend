@@ -12,6 +12,8 @@ const adminRoutes = require('./Routes/adminRoutes');
 const userRoutes = require('./Routes/userRoutes');
 const paymentRoutes = require('./Routes/paymentRoutes');
 const spaceRoutes = require('./Routes/spaceRoutes.js');
+const eventRoutes = require('./Routes/eventRoutes');
+
 
 
 
@@ -52,6 +54,8 @@ app.use('/api/user', userRoutes);
 // app.use('/api/payment',paymentRoutes );
 app.use('/api/statics/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/spaces', spaceRoutes);
+app.use('/api/events', eventRoutes);
+
 
 
 app.use('/', (req, res) => {
