@@ -21,7 +21,7 @@ const howToReachSchema = new mongoose.Schema({
 });
 
 const makerspaceSchema = new mongoose.Schema({
-  id: { type: String, unique: true },
+  id: { type: String, unique: true, required:false },
   type: { type: String},
   usage: [{ type: String }],
   name: { type: String },

@@ -62,6 +62,7 @@ const onboardMakerspace = async (req, res) => {
     });
 
     const makerspace = new Makerspace({
+      id: `MS-${Date.now()}`,
       email: vendormail,
       token:token
     });
