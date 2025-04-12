@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    firstName: { type: String,  },
+    lastName: { type: String, },
     displayName: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String },
-    mobile: { type: String, required: true },
+    mobile: { type: String, },
     gender: { type: String, enum: ['Male', 'Female', 'Other'] },
     location: {
         country: { type: String },
@@ -16,8 +16,8 @@ const UserSchema = new mongoose.Schema({
         name: { type: String },
         type: { type: String, enum: ['University', 'Company'] }
     },
-    userType: { type: String, required: true },
-    industry: { type: String, required: true },
+    userType: { type: String, },
+    industry: { type: String, },
     skills: [{ type: String }],
     role: { type: String },
     links: {
@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
         twitter: { type: String },
         github: { type: String }
     },
-    purpose: { type: String, required: true },
+    purpose: { type: String,  },
     image: { type: String },
     emailVerified: { type: Date },
     resetToken: String,

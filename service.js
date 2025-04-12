@@ -9,11 +9,12 @@ const machineRoutes = require('./Routes/machineRoutes');
 const vendorRoutes = require('./Routes/vendorRoutes');
 const authRoutes = require('./Routes/authRoutes');
 const adminRoutes = require('./Routes/adminRoutes');
-const userRoutes = require('./Routes/userRoutes');
+// const userRoutes = require('./Routes/userRoutes');
 const paymentRoutes = require('./Routes/paymentRoutes');
 const spaceRoutes = require('./Routes/spaceRoutes.js');
 const eventRoutes = require('./Routes/eventRoutes');
 
+const userRoutes = require('./Routes/userRoutes');
 
 
 
@@ -50,11 +51,12 @@ app.use('/api/machines', machineRoutes);
 // app.use('/api/vendor', vendorRoutes);
 // app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/user', userRoutes);
+
 // app.use('/api/payment',paymentRoutes );
 app.use('/api/statics/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/makerspaces', spaceRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/users', userRoutes);
 
 
 

@@ -15,7 +15,7 @@ const JWT_SECRET = "Karkhana"
 
 const sendEmail = async (email, id, password) => {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.office365.com', // Outlook SMTP server
+    host: 'smtp.gmail.com', // Outlook SMTP server
     port: 587, // Port for TLS
     secure: false, // Use TLS
     auth: {
@@ -32,6 +32,7 @@ const sendEmail = async (email, id, password) => {
   };
 
   await transporter.sendMail(mailOptions);
+  console.log('Email sent successfully to:', email);
 };
 
 const onboardMakerspace = async (req, res) => {
@@ -142,7 +143,15 @@ const uploadImages = async (files) => {
 // Update an existing verified makerspace (completes onboarding)
 const createMakerspace = async (req, res) => {
   try {
+    console.log('Creating makerspace:', req.body);
     // Extract the token from the Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Authorization token is missing or invalid' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const { email, type, usage, name, number, inChargeName, websiteLink, timings, city, state, address, zipcode, country, organizationName, organizationEmail } = req.body;
 
