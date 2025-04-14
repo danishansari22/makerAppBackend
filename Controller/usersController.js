@@ -48,6 +48,39 @@ const signup = async (req, res) => {
   }
 };
 
+const autoLogin = async (req, res) => {
+  try {
+    console.log("autoLogin", req.body)
+   const {email} = req.body;
+   
+    // Verify the token
+
+    // Find the user by ID from the decoded token
+    const user = await User.findOne({email})
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, userType: user.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Return the user object (excluding the password)
+    res.status(201).json({
+      user: { ...user.toObject(), password: undefined },
+      token,
+
+    });
+  } catch (error) {
+    console.error('Error during auto-login:', error);
+    res.status(403).json({ message: 'Invalid or expired token' });
+  }
+};
+
+
+
 // POST /api/users/login
 const login = async (req, res) => {
   try {
@@ -78,20 +111,37 @@ const login = async (req, res) => {
 // GET /api/users/reauth
 const reauth = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Authorization token is missing or invalid' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Find the user by ID from the decoded token
+    const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const token = generateToken(user);
+    // Generate a new token
+    const newToken = jwt.sign(
+      { id: user._id, email: user.email, userType: user.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
     res.status(200).json({
       user: { ...user.toObject(), password: undefined },
-      token,
+      token: newToken,
     });
   } catch (error) {
     console.error('Error re-authenticating user:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
 
@@ -190,4 +240,5 @@ module.exports = {
   getUserByContact,
   forgotPassword,
   resetPassword,
+  autoLogin
 };

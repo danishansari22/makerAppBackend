@@ -45,7 +45,7 @@ const onboardMakerspace = async (req, res) => {
     }
 
     // Check if makerspace with same email already exists
-    const existingMakerspace = await Makerspace.findOne({ email: vendormail });
+    const existingMakerspace = await Makerspace.findOne({ vendormail: vendormail });
 
   
 
@@ -64,12 +64,12 @@ const onboardMakerspace = async (req, res) => {
 
     const makerspace = new Makerspace({
       id: `MS-${Date.now()}`,
-      email: vendormail,
+      vendormail: vendormail,
       token:token
     });
     await makerspace.save();
 
-    res.status(200).json({token}  )
+    res.status(200).json({token, makerspace}  )
 
   } catch (error) {
     console.error('Check email error:', error);
@@ -87,12 +87,12 @@ const verifyOnboardingToken = async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
 
     // Check if the makerspace exists
-    const makerspace = await Makerspace.findOne({ email: decoded.vendormail });
+    const makerspace = await Makerspace.findOne({ vendormail: decoded.vendormail });
     if (!makerspace) {
       return res.status(404).json({ message: 'Invalid token or makerspace not found', isValid: false });
     }
 
-    res.status(200).json({ message: 'Token verified successfully', isValid: true, email: makerspace.email,token:token });
+    res.status(200).json({ message: 'Token verified successfully', isValid: true, email: decoded.vendormail,token:token });
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'Invalid or expired token', isValid: false });
@@ -112,6 +112,7 @@ const getAllSpaces = async (req, res) => {
 const getSpaceById = async (req, res) => {
   try {
     const { id } = req.params;
+      console.log('Fetching space with ID:',id);
     const space = await Makerspace.findById(id);
     if (!space) {
       return res.status(404).json({ message: 'Space not found' });
@@ -157,7 +158,7 @@ const createMakerspace = async (req, res) => {
 
 
     // Find the makerspace by email
-    const existingMakerspace = await Makerspace.findOne({ email });
+    const existingMakerspace = await Makerspace.findOne({ vendormail: decoded.vendormail });
     if (!existingMakerspace) {
       return res.status(404).json({ message: 'Makerspace not found for the provided email' });
     }
@@ -193,9 +194,9 @@ const createMakerspace = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      email,
+      email: decoded.vendormail,
       password: hashedPassword,
-      firstName: inChargeName || 'Makerspace',
+      name: inChargeName || 'Makerspace',
       userType: 'vendor',
     });
 

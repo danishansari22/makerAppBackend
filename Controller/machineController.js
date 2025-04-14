@@ -33,6 +33,10 @@ const createMachine = async (req, res) => {
 
     const imageLinks = req.files ? await uploadImages(req.files) : [];
 
+    const NEWinCharge = typeof req.body.inCharge === 'string'
+    ? JSON.parse(req.body.inCharge)
+    : req.body.inCharge;
+
     const newMachine = new Machine({
       category,
       brand,
@@ -43,7 +47,7 @@ const createMachine = async (req, res) => {
       description,
       location,
       instruction,
-      inCharge,
+      inCharge: NEWinCharge,
       makerSpaceName:makerSpace ,
       status,
     });

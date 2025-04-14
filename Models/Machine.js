@@ -1,31 +1,30 @@
 const mongoose = require('mongoose');
 
 const inChargeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  number: { type: String, required: true },
+  name: { type: String, },
+  number: { type: String, },
 });
 
 const timeSchema = new mongoose.Schema({
-  start: { type: String, required: true },
-  end: { type: String, required: true },
+  start: { type: String,  },
+  end: { type: String,  },
 });
 
 const machineSchema = new mongoose.Schema({
-  _id: { type: String, unique: true, required: true },
-  category: { type: String, required: true },
-  brand: { type: String, required: true },
-  model: { type: String, required: true },
-  price: { type: Number, required: true },
-  time: { type: timeSchema, required: true },
+  category: { type: String, },
+  brand: { type: String,},
+  model: { type: String,},
+  price: { type: Number, },
+  time: { type: timeSchema, },
   imageLinks: [{ type: String }],
-  description: { type: String, required: true },
-  location: { type: String, required: true },
-  instruction: { type: String, required: false },
+  description: { type: String,  },
+  location: { type: String, },
+  instruction: { type: String,  },
   inCharge: [inChargeSchema],
   makerSpace: { type: mongoose.Schema.Types.ObjectId,
     ref: 'MakerSpace' },
-    makerSpaceName: { type: String, required: true },
-  status: { type: String, required: true },
+    makerSpaceName: { type: String, },
+  status: { type: String,  },
   rating: { type: Number },
   createdAt: { type: Date, default: Date.now },
 });
