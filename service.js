@@ -46,6 +46,18 @@ app.use(cors(
   }
 ));
 app.use(bodyParser.json());
+app.use("/link", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "index.html"); // Adjust the path if needed
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error("Error serving index.html:", error);
+    res.status(500).json({
+      message: "Error serving index.html",
+      error: error.message,
+    });
+  }
+});
 
 app.use('/api/machines', machineRoutes);
 // app.use('/api/vendor', vendorRoutes);

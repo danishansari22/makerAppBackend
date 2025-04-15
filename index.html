@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Makerspace Onboarding</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+            :root {
+                /* Monochromatic Base (Grays) */
+                --bg-color: #f8fafc; /* Light gray background */
+                --container-bg: #ffffff; /* White container */
+                --text-color: #1f2937; /* Dark gray text */
+                --text-muted-color: #6b7280; /* Lighter gray for muted text/placeholders */
+                --border-color: #e5e7eb; /* Light border */
+                --input-bg: #f9fafb; /* Very light gray for inputs */
+                --input-border-focus: var(--accent-primary); /* Orange focus */
+
+                /* Accents */
+                --accent-primary: #22c55e; /* Orange */
+                --accent-primary-hover: #16a34a; /* Darker Orange */
+                --accent-secondary: #f97316; /* Green */
+                --accent-secondary-hover: #ea580c; /* Darker Green */
+                --accent-secondary-light-bg: #f0fdf4; /* Very light green background for copy success */
+
+                /* Feedback */
+                --error-color: #ef4444; /* Red for errors */
+                --error-bg: #fee2e2; /* Light red background */
+
+                /* Spacing & Radius */
+                --spacing-unit: 1rem;
+                --border-radius: 8px;
+                --input-padding-y: 0.75rem;
+                --input-padding-x: 1rem;
+                --button-padding-y: 0.75rem;
+                --button-padding-x: 1.5rem;
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            body {
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    Helvetica,
+                    Arial,
+                    sans-serif,
+                    "Apple Color Emoji",
+                    "Segoe UI Emoji",
+                    "Segoe UI Symbol";
+                min-height: 100vh;
+                margin: 0;
+                display: grid;
+                place-items: center;
+                padding: var(--spacing-unit);
+                line-height: 1.6;
+            }
+
+            #container {
+                background-color: var(--container-bg);
+                border-radius: var(--border-radius);
+                padding: calc(var(--spacing-unit) * 2.5);
+                box-shadow:
+                    0 10px 15px -3px rgba(0, 0, 0, 0.05),
+                    0 4px 6px -4px rgba(0, 0, 0, 0.05);
+                width: 100%;
+                max-width: 500px; /* Slightly smaller max-width for better focus */
+                display: flex;
+                flex-direction: column;
+                gap: calc(
+                    var(--spacing-unit) * 1.5
+                ); /* Consistent gap between elements */
+            }
+
+            h1 {
+                margin: 0 0 var(--spacing-unit) 0;
+                font-size: 1.875rem; /* 30px */
+                font-weight: 600;
+                text-align: center;
+                color: var(--text-color);
+                /* Removed gradient for cleaner look */
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: calc(var(--spacing-unit) * 0.25);
+            }
+
+            label {
+                font-weight: 500;
+                font-size: 0.875rem; /* 14px */
+                color: var(--text-muted-color);
+            }
+
+            input[type="email"],
+            input[type="text"] {
+                width: 100%;
+                padding: var(--input-padding-y) var(--input-padding-x);
+                background-color: var(--input-bg);
+                border: 1px solid var(--border-color);
+                border-radius: var(--border-radius);
+                color: var(--text-color);
+                font-size: 1rem; /* 16px */
+                transition:
+                    border-color 0.2s ease,
+                    box-shadow 0.2s ease;
+            }
+            input[type="text"][readonly] {
+                background-color: var(
+                    --bg-color
+                ); /* Slightly different bg for readonly */
+                cursor: default;
+            }
+
+            input::placeholder {
+                color: var(--text-muted-color);
+                opacity: 0.7;
+            }
+
+            input[type="email"]:focus,
+            input[type="text"]:focus {
+                /* Removed focus for readonly */
+                outline: none;
+                border-color: var(--input-border-focus);
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); /* Orange glow */
+            }
+
+            button {
+                padding: var(--button-padding-y) var(--button-padding-x);
+                border: none;
+                border-radius: var(--border-radius);
+                font-size: 1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition:
+                    background-color 0.2s ease,
+                    transform 0.1s ease,
+                    opacity 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            button:active {
+                transform: scale(0.98);
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            .generate-button {
+                background-color: var(--accent-primary);
+                color: white;
+                width: 100%; /* Make main button full width */
+            }
+            .generate-button:hover:not(:disabled) {
+                background-color: var(--accent-primary-hover);
+            }
+
+            #linkDisplay {
+                display: none; /* Initially hidden */
+                flex-direction: column;
+                gap: calc(var(--spacing-unit) * 0.75);
+                margin-top: var(--spacing-unit);
+                padding-top: var(--spacing-unit);
+                border-top: 1px solid var(--border-color);
+                width: 100%;
+            }
+            .link-wrapper {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            .link-wrapper input {
+                flex-grow: 1; /* Take remaining space */
+            }
+
+            .copy-button {
+                background-color: var(--accent-secondary);
+                color: white;
+                flex-shrink: 0; /* Prevent shrinking */
+                padding: var(--input-padding-y) var(--input-padding-x); /* Match input height */
+            }
+            .copy-button:hover:not(:disabled) {
+                background-color: var(--accent-secondary-hover);
+            }
+            .copy-button.copied {
+                background-color: var(--accent-secondary-light-bg);
+                color: var(--accent-secondary);
+            }
+
+            /* Status/Error Message Area */
+            #statusMessage {
+                font-size: 0.875rem;
+                padding: 0.75rem 1rem;
+                border-radius: var(--border-radius);
+                text-align: center;
+                display: none; /* Hidden by default */
+                margin-top: 0; /* Reset margin */
+                width: 100%;
+            }
+            #statusMessage.error {
+                background-color: var(--error-bg);
+                color: var(--error-color);
+                display: block;
+            }
+            #statusMessage.success {
+                /* Could add a success style if needed beyond copy */
+                display: block;
+                background-color: var(--accent-secondary-light-bg);
+                color: var(--accent-secondary-hover);
+            }
+
+            /* Loading spinner (optional, simple CSS) */
+            .loader {
+                width: 1em;
+                height: 1em;
+                border: 2px solid currentColor;
+                border-right-color: transparent;
+                border-radius: 50%;
+                display: inline-block;
+                animation: spinner 0.75s linear infinite;
+            }
+            @keyframes spinner {
+                to {
+                    transform: rotate(1turn);
+                }
+            }
+
+            @media (max-width: 480px) {
+                #container {
+                    padding: var(--spacing-unit) * 1.5;
+                }
+                h1 {
+                    font-size: 1.5rem; /* 24px */
+                }
+                .link-wrapper {
+                    flex-direction: column;
+                    align-items: stretch; /* Make input/button full width */
+                }
+                .copy-button {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="container">
+            <h1>Makerspace Onboarding</h1>
+
+            <div class="form-group">
+                <label for="emailInput">Vendor Email Address</label>
+                <input
+                    type="email"
+                    id="emailInput"
+                    placeholder="vendor@mail.com"
+                    required
+                />
+            </div>
+
+            <!-- Status Message Area -->
+            <div id="statusMessage"></div>
+
+            <!-- Generate Button -->
+            <button
+                onclick="generateLink()"
+                class="generate-button"
+                id="generateBtn"
+            >
+                <span id="generateBtnText">Generate Onboarding Link</span>
+                <span id="generateBtnLoader" style="display: none"
+                    ><span class="loader"></span
+                ></span>
+            </button>
+
+            <!-- Generated Link Display Area -->
+            <div id="linkDisplay">
+                <label for="onboardingLink">Your unique onboarding link:</label>
+                <div class="link-wrapper">
+                    <input type="text" id="onboardingLink" readonly />
+                    <button
+                        onclick="copyLink()"
+                        class="copy-button"
+                        id="copyBtn"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            viewBox="0 0 16 16"
+                            aria-hidden="true"
+                            style="margin-right: 0.25rem"
+                        >
+                            <path
+                                d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"
+                            />
+                            <path
+                                d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"
+                            />
+                        </svg>
+                        <span id="copyBtnText">Copy</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const emailInput = document.getElementById("emailInput");
+            const generateBtn = document.getElementById("generateBtn");
+            const generateBtnText = document.getElementById("generateBtnText");
+            const generateBtnLoader =
+                document.getElementById("generateBtnLoader");
+            const linkDisplay = document.getElementById("linkDisplay");
+            const onboardingLinkInput =
+                document.getElementById("onboardingLink");
+            const copyBtn = document.getElementById("copyBtn");
+            const copyBtnText = document.getElementById("copyBtnText");
+            const statusMessage = document.getElementById("statusMessage");
+
+            function setStatus(message, type = "error") {
+                statusMessage.textContent = message;
+                statusMessage.className = type; // 'error' or 'success'
+                statusMessage.style.display = "block";
+            }
+
+            function clearStatus() {
+                statusMessage.textContent = "";
+                statusMessage.style.display = "none";
+                statusMessage.className = "";
+            }
+
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    generateBtn.disabled = true;
+                    generateBtnText.style.display = "none";
+                    generateBtnLoader.style.display = "inline-flex"; // Use inline-flex for loader alignment
+                    clearStatus(); // Clear previous statuses when starting
+                    linkDisplay.style.display = "none"; // Hide link display during new generation
+                } else {
+                    generateBtn.disabled = false;
+                    generateBtnText.style.display = "inline";
+                    generateBtnLoader.style.display = "none";
+                }
+            }
+
+            async function generateLink() {
+                const email = emailInput.value.trim(); // Trim whitespace
+
+                if (!validateEmail(email)) {
+                    setStatus("Please enter a valid email address.");
+                    emailInput.focus(); // Focus the input for correction
+                    return;
+                }
+
+                setLoading(true);
+
+                try {
+                    console.log("Generating link for email:", email);
+                    const apiUrl = "https://makerappbackend-1ty8.onrender.com/api/makerspaces/onboard";
+
+                    const response = await fetch(apiUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                        },
+                         // Include cookies with the request
+                        body: JSON.stringify({ vendormail: email }),
+                      
+                    })
+    
+
+                    const responseData = await response.json();
+                     // Try to parse JSON regardless of status
+                    
+                    if(response.ok) {
+                        console.log("Response data:", responseData);
+                    } else {
+                        console.error("Error response data:", responseData);
+                    }
+                    if (!response.ok) {
+                        // Use message from backend if available, otherwise generic error
+                        const errorMessage =
+                            responseData?.message ||
+                            `HTTP error! Status: ${response.status}`;
+                        throw new Error(errorMessage);
+                    }
+
+                    const token = responseData.token;
+                    if (!token) {
+                        throw new Error(
+                            "Received success status but no token in response.",
+                        );
+                    }
+
+                    const onboardingLink = `https://makerapp-six.vercel.app/vendor-space/${token}`;
+
+                    onboardingLinkInput.value = onboardingLink;
+                    linkDisplay.style.display = "flex"; // Show the link section (it's a flex container now)
+                    clearStatus(); // Clear any previous errors
+
+                    // Reset copy button state
+                    copyBtnText.textContent = "Copy";
+                    copyBtn.classList.remove("copied");
+                    copyBtn.disabled = false;
+                } catch (error) {
+                    console.error("Error generating link:", error);
+                    // Display a user-friendly error message
+                    setStatus(
+                        error.message ||
+                            "An unexpected error occurred. Please try again.",
+                    );
+                    linkDisplay.style.display = "none"; // Hide link section on error
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            function validateEmail(email) {
+                // Simple regex, consider a more robust one if needed
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(String(email).toLowerCase());
+            }
+
+            function copyLink() {
+                if (!navigator.clipboard) {
+                    // Fallback for older browsers (less common now)
+                    try {
+                        onboardingLinkInput.select();
+                        document.execCommand("copy");
+                        setCopySuccess();
+                    } catch (err) {
+                        console.error("Fallback copy failed:", err);
+                        setStatus(
+                            "Could not copy link. Please copy it manually.",
+                        );
+                    }
+                    return;
+                }
+
+                navigator.clipboard
+                    .writeText(onboardingLinkInput.value)
+                    .then(() => {
+                        setCopySuccess();
+                    })
+                    .catch((err) => {
+                        console.error("Async copy failed:", err);
+                        setStatus(
+                            "Could not copy link. Please copy it manually.",
+                        );
+                    });
+            }
+
+            function setCopySuccess() {
+                copyBtnText.textContent = "Copied!";
+                copyBtn.classList.add("copied"); // Add class for styling
+                copyBtn.disabled = true; // Briefly disable to prevent spamming
+
+                // Optional: Show a success message briefly
+                setStatus("Link copied to clipboard!", "success");
+
+                setTimeout(() => {
+                    copyBtnText.textContent = "Copy";
+                    copyBtn.classList.remove("copied");
+                    copyBtn.disabled = false;
+                    clearStatus(); // Clear the success message if shown above
+                }, 2000); // Reset after 2 seconds
+            }
+
+            // Optional: Allow pressing Enter in the email field to trigger generation
+            emailInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent default form submission
+                    generateLink();
+                }
+            });
+        </script>
+    </body>
+</html>
