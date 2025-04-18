@@ -170,6 +170,7 @@ const createMakerspace = async (req, res) => {
     const updatedMakerspace = await Makerspace.findByIdAndUpdate(
       existingMakerspace._id,
       {
+        $unset: { token: '' }, // Remove the token field
         type,
         usage,
         name,
@@ -197,6 +198,7 @@ const createMakerspace = async (req, res) => {
       email: decoded.vendormail,
       password: hashedPassword,
       name: inChargeName || 'Makerspace',
+      makerspaceId: updatedMakerspace._id,
       userType: 'vendor',
     });
 

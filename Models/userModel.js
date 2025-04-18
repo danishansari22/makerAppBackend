@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   industry: [{ type: String }],
   purpose: [{ type: String }],
   role: { type: String  },
+  makerspaceId:{ type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
