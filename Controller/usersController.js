@@ -148,11 +148,13 @@ const reauth = async (req, res) => {
 // GET /api/users/by-contact
 const getUserByContact = async (req, res) => {
   try {
+    console.log("getUserByContact", req.query)
     const { email, number } = req.query;
 
-    const user = await User.findOne({
-      $or: [{ email }, { mobile: number }],
-    });
+    const user = await User.findOne({ email:email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
