@@ -13,7 +13,7 @@ const s3 = new AWS.S3({
 });
 const JWT_SECRET = "Karkhana"
 
-const sendEmail = async (email, id, password) => {
+const sendEmail = async (email, id, password, _id) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com', // Outlook SMTP server
     port: 587, // Port for TLS
@@ -28,7 +28,7 @@ const sendEmail = async (email, id, password) => {
     from: process.env.EMAIL_SERVER_USER, // Sender address
     to: email, // Recipient address
     subject: 'Your Makerspace Account Details',
-    text: `Your account has been created successfully.\n\nID: ${id}\nPassword: ${password}\n\nPlease log in to your account.`,
+    text: `Your account has been created successfully.\n\nID: ${id}\nPassword: ${password}\n\nPlease log in to your account. you makespace link is: https://makerapp-one.vercel.app/vendor-space/${_id}/dashboard`,
   };
 
   await transporter.sendMail(mailOptions);
@@ -212,7 +212,7 @@ const createMakerspace = async (req, res) => {
     );
 
     // Send email to the user with ID and password
-    await sendEmail(email, email, password);
+    await sendEmail(email, email, password, updatedMakerspace._id);
 
     res.status(200).json({
       message: 'Makerspace updated successfully',
