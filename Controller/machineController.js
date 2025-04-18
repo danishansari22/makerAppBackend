@@ -32,7 +32,7 @@ const createMachine = async (req, res) => {
     const { category, brand, model, price, time, description, location, instruction, inCharge, makerSpace, status } = req.body;
 
     const imageLinks = req.files ? await uploadImages(req.files) : [];
-
+    const parsedTime = typeof time === 'string' ? JSON.parse(time) : time;
     const NEWinCharge = typeof req.body.inCharge === 'string'
     ? JSON.parse(req.body.inCharge)
     : req.body.inCharge;
@@ -42,9 +42,9 @@ const createMachine = async (req, res) => {
       brand,
       model,
       price,
-      time,
+      time: parsedTime,
       imageLinks,
-      description,
+      description,                         
       location,
       instruction,
       inCharge: NEWinCharge,
